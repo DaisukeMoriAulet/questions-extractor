@@ -1,0 +1,228 @@
+# ──────────────────────────────────────────────────────────────
+# This YAML is for **illustration purposes only**.
+# It is not intended for actual execution. Instead, it serves to clearly
+# explain the processing flow of Multi-agents and the definitions of
+# agents and tools.
+# ──────────────────────────────────────────────────────────────
+
+agents:
+  # ───────────────────────────────
+  # 0. Root Agent
+  # ───────────────────────────────
+  - name: question_extractor_agent
+    type: SequentialAgent
+    description: >
+      A Sequence to process images/PDFs and save the results to Supabase.
+    sub_agents:
+
+      # ───────────────────────────────
+      # 1. File Preparation Agent
+      # ───────────────────────────────
+      - name: file_preparator_agent
+        type: LlmAgent
+        model: gemini-2.5-flash-preview-05-20
+        description: >
+          An agent that lists files in a specified folder, splits PDF files into page images,
+          and creates a list of files to be processed.
+
+          1. Uses the `list_files` tool to get a list of file paths from the specified folder.
+          2. If PDF files exist, uses the `split_pdf_pages` tool to split them into page images.
+        tools:
+
+          # ───────────────────────────────
+          # 1-1. File Listing Tool
+          # ───────────────────────────────
+          - list_files:
+              type: tool
+              description: A tool to get a list of file paths from a specified folder.
+              args:
+                - dir_path: Path to the specified folder (str)
+                - tool_context: ToolContext
+              store:
+                - context:
+                  - ToolContext.state["files"][{filename}]: >
+                      Lists files present in the specified folder.
+                      Uses filenames as keys, with empty strings as values (for status management).
+                      Example:
+                        files:
+                          filename1: ""
+                          filename2: ""
+              returns:
+                status: success | error
+                message: Message of the processing result (str)
+                files: Information of the files to be processed
+
+          # ───────────────────────────────
+          # 1-2. PDF Splitting Tool
+          # ───────────────────────────────
+          - split_pdf_pages:
+              type: tool
+              description: A tool to split a PDF into page images and return an array of image paths.
+              args:
+                - file_path: Path to the PDF file (str)
+                - tool_context: ToolContext
+              store:
+                - context:
+                  - ToolContext.state["files"][{filename}-{index}]: >
+                      Adds the split image files to Context.state["files"].
+                      Example:
+                        files:
+                          filename-0: ""
+                          filename-1: ""
+              returns:
+                status: success | error
+                message: Message of the processing result (str)
+                files: File information with added split image files
+        outputs:
+          - output_key: file_preparator_result
+
+
+      # ───────────────────────────────
+      # 2. Loop Agent
+      # ───────────────────────────────
+      - name: pipeline_loop_agent
+        type: LoopAgent
+        description: Loops through a SequentialAgent to process each file.
+        sub_agents:
+
+          # ───────────────────────────────
+          # 2-1. Pipeline Sequential Agent
+          # ───────────────────────────────
+          - name: pipeline_sequential_agent
+            type: SequentialAgent
+            description: >
+              A Sequence for single page image retrieval -> OCR -> text structuring -> tagging -> bulk upsert.
+            sub_agents:
+
+              # ───────────────────────────────
+              # 2-1-1. File Selection Agent
+              # ───────────────────────────────
+              - name: file_selector_agent
+                type: LlmAgent
+                model: gemini-2.5-flash-preview-05-20
+                description: >
+                  Identifies the next file to be processed from `Context.state["files"]` among unprocessed files,
+                  and saves the image data to artifacts using the `select_file` tool.
+
+                  1. Checks `Context.state["files"]` and identifies the next unprocessed file.
+                  2. If there is a next file, passes the path of that file to the `select_file` tool.
+                  3. If there are no more files to process, calls the `exit_loop` tool to end the loop.
+
+                tools:
+
+                  # ───────────────────────────────
+                  # 2-1-1-1. File Selection Tool
+                  # ───────────────────────────────
+                  - select_file:
+                      type: tool
+                      description: A tool to get an image file from a specified path and save it to artifacts.
+                      args:
+                        - file_path: File path (str)
+                        - tool_context: ToolContext
+                      context:
+                        - artifacts:  # Keep original file in artifacts
+                          - save_artifact:
+                              filename: str
+                              artifact: types.Part  # Binary data of the file
+                        - state:
+                          - file_to_process: Filename of the file to be processed (str)
+                      returns:
+                        status: success | error
+                        message: str
+                        file_metadata:
+                          filename: str
+                          page_count: int
+
+                  # ───────────────────────────────
+                  # 2-1-1-2. Loop Exit Tool
+                  # ───────────────────────────────
+                  - exit_loop:
+                      type: tool
+                      description: A tool to exit the loop when there are no more unprocessed files.
+                      args:
+                        - tool_context: ToolContext
+                      store:
+                        - context:
+                            ToolContext.actions.escalate: True
+                      returns:
+                        status: success | error
+                        message: str
+
+                outputs:
+                  - output_key: file_selector_result
+
+              # ───────────────────────────────
+              # 2-1-2. Text Extraction Agent
+              # ───────────────────────────────
+              - name: extractor_agent
+                type: LlmAgent
+                model: gemini-2.5-flash-preview-05-20
+                description: >
+                  An agent that retrieves an image file using the `load_artifact` tool
+                  and extracts text from the image.
+
+                # ───────────────────────────────
+                # 2-1-2-1. File Loading Tool
+                # ───────────────────────────────
+                tools:
+                  - load_artifact:
+                      type: tool
+                      description: >
+                        A tool that takes `Context.state["file_to_process"]` as `filename`
+                        and loads it from artifacts.
+                      args:
+                        - filename: str
+                        - tool_context: ToolContext
+                      context:
+                        - artifacts:
+                          - load_artifact:
+                              filename: str
+                      returns:
+                        status: success | error
+                        message: Informs the filename and artifact_version
+
+                outputs:
+                  - output_key: extractor_result
+
+              # ───────────────────────────────
+              # 2-1-3. Text Structuring Agent
+              # ───────────────────────────────
+              - name: structure_agent
+                type: LlmAgent
+                model: gemini-2.5-pro-preview-05-06
+                description: >
+                  An agent that structures the extracted text (`Context.state["extractor_result"]`)
+                  into sections, parts, questions, choices, answers, etc.
+                tools: []
+                outputs:
+                  - output_key: structure_result
+                  - output_schema:
+                      status: success | error
+                      test_set: Structured JSON of test questions (dict)  # TODO: Define class
+
+              # ───────────────────────────────
+              # 2-1-4. Tagging Agent
+              # ───────────────────────────────
+              - name: tagging_agent
+                type: LlmAgent
+                model: gemini-2.5-pro-preview-05-06
+                description: >
+                  An agent that performs tagging on the structured data of test questions.
+                tools: []
+                outputs:
+                  - output_key: tagging_result
+                  - output_schema:
+                      status: success | error
+                      tagged_test_set: Tagged structured JSON of test questions (dict)  # TODO: Define class
+
+              # ───────────────────────────────
+              # 2-1-5. Saving Agent
+              # ───────────────────────────────
+              - name: save_agent
+                type: LlmAgent
+                model: gemini-2.5-flash-preview-05-20
+                description: "Bulk upsert items/choices/tags to Supabase"
+                tools:
+                  - save_test_set: # TODO: Flesh out requirements including table definitions
+                outputs:
+                  - output_key: save_result
