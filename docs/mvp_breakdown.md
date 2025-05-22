@@ -23,7 +23,7 @@ This document breaks down the minimum viable product (MVP) requirements defined 
 
 * [x] **logging.py** ― structured log (`filename`, `page`, `gemini_request_id`)
 * [ ] **backoff.py** ― `exponential_backoff(jitter=True, retries=3)`
-* [ ] **paths.py** ― Input/output directory constants `INPUT_DIR`, `TMP_DIR`, `ARTIFACT_DIR`
+* [x] **paths.py** ― Input/output directory constants `INPUT_DIR`
 
 ## 3. Tool Implementation (ADK Tool Functions)
 
