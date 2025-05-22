@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# OS-specific
+.DS_Store
+
+# Editor/Tool specific
+.history/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+.env
+logs/
