@@ -54,7 +54,7 @@
 ### 3.3 Bulk Save (Supabase)
 
 * Third normal form with a 7-table structure:
-    * tests → sections → parts → passage\_sets → passages → questions → choices
+    * test_forms → sections → parts → passage\_sets → passages → questions → choices
     * Auxiliary tables: tags, question\_tags
 * Example of `upsert(values, onConflict= ... )`:
     * questions : `onConflict=["part_id","number"]`

@@ -14,8 +14,8 @@ This document breaks down the minimum viable product (MVP) requirements defined 
 
 ## 1. Data Layer (Supabase)
 
-* [ ] **init.sql** ― Create third normal form 7+2 tables (tests→…→choices / tags, question\_tags)
-* [ ] **Typed ER Diagram** ― Auto‑generate with dbdiagram.io → `docs/er.png`
+* [x] **init.sql** ― Create third normal form 7+2 tables (test_forms→…→choices / tags, question\_tags)
+* ~~[ ] **Typed ER Diagram** ― Auto‑generate with dbdiagram.io → `docs/er.png`~~
 * [ ] **Supabase Type Definitions** ― Generate `postgrest-js` script or `supabase gen types typescript`
 * [ ] **Local `.env`** ― `SUPABASE_URL`, `SUPABASE_ANON_KEY`
 
