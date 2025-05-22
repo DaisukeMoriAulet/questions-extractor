@@ -31,14 +31,14 @@ These tasks are from `../mvp_breakdown.md#1-data-layer-supabase`:
 - [ ] #<TASK_ID_INIT_SQL> **init.sql**: Create third normal form 7+2 tables (tests→…→choices / tags, question_tags)
 - [ ] #<TASK_ID_ER_DIAGRAM> **Typed ER Diagram**: Auto‑generate with dbdiagram.io → `../er.png`
 - [ ] #<TASK_ID_TYPES> **Supabase Type Definitions**: Generate `postgrest-js` script or `supabase gen types typescript`
-- [ ] #<TASK_ID_ENV> **Local `.env`**: `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+- [ ] #<TASK_ID_ENV> **Local `.env`**: `SUPABASE_URL`, `SUPABASE_API_KEY`
 
 ## Acceptance Criteria / Definition of Done
 
 - [ ] `init.sql` script successfully creates all 9 specified tables (test_forms, sections, parts, passage_sets, passages, questions, choices, tags, question_tags) with correct columns, data types, primary keys, foreign keys, and constraints in a local or development Supabase instance.
 - [ ] The Entity Relationship Diagram (`../er.png`) is generated and accurately reflects the schema defined in `init.sql`.
 - [ ] Supabase TypeScript types are successfully generated from the schema and committed to the repository.
-- [ ] A template or actual `.env` file is created with `SUPABASE_URL` and `SUPABASE_ANON_KEY` variables, allowing for successful connection to the Supabase instance.
+- [ ] A template or actual `.env` file is created with `SUPABASE_URL` and `SUPABASE_API_KEY` variables, allowing for successful connection to the Supabase instance.
 - [ ] All related documentation (e.g., notes on schema decisions) is updated if necessary.
 
 ## Reference

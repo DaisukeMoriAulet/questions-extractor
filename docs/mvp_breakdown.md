@@ -16,12 +16,12 @@ This document breaks down the minimum viable product (MVP) requirements defined 
 
 * [x] **init.sql** ― Create third normal form 7+2 tables (test_forms→…→choices / tags, question\_tags)
 * ~~[ ] **Typed ER Diagram** ― Auto‑generate with dbdiagram.io → `docs/er.png`~~
-* [ ] **Supabase Type Definitions** ― Generate `postgrest-js` script or `supabase gen types typescript`
-* [ ] **Local `.env`** ― `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+* ~~[ ] **Supabase Type Definitions** ― Generate `postgrest-js` script or `supabase gen types typescript`~~
+* [x] **Local `.env`** ― `SUPABASE_URL`, `SUPABASE_API_KEY`
 
 ## 2. Common Utilities
 
-* [ ] **logging.py** ― structured log (`filename`, `page`, `gemini_request_id`)
+* [x] **logging.py** ― structured log (`filename`, `page`, `gemini_request_id`)
 * [ ] **backoff.py** ― `exponential_backoff(jitter=True, retries=3)`
 * [ ] **paths.py** ― Input/output directory constants `INPUT_DIR`, `TMP_DIR`, `ARTIFACT_DIR`
 

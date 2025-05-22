@@ -26,6 +26,7 @@ If you have other ideas for contributions, please feel free to propose them in a
     pip install -r requirements.txt
     ```
 3.  **Google Agent Development Kit (ADK)**: This project utilizes Google ADK. Basic knowledge of ADK will help you during development.
+4.  **Environment Variables**: This project uses environment variables to store sensitive information such as API keys and database credentials. All of them can be accessed through GitHub Environment Variables. They are already set in the repository.
 
 ## Coding Conventions
 
