@@ -8,6 +8,9 @@ from typing import Dict, Union
 from google.adk.tools import ToolContext
 from google.genai import types
 
+FILE_STATUS_UNPROCESSED = ""
+FILE_STATUS_IN_PROGRESS = "in-progress"
+
 
 def select_file(
     tool_context: ToolContext,
@@ -37,7 +40,7 @@ def select_file(
     # Look for the first unprocessed file
     unprocessed_file = None
     for file_path, status in tool_context.state["files"].items():
-        if status == "":  # Empty string indicates unprocessed file
+        if status == FILE_STATUS_UNPROCESSED:  # Empty string indicates unprocessed file
             unprocessed_file = file_path
             break
 
@@ -50,7 +53,7 @@ def select_file(
         }
 
     # Mark the file as in-progress to prevent reprocessing
-    tool_context.state["files"][unprocessed_file] = "in-progress"
+    tool_context.state["files"][unprocessed_file] = FILE_STATUS_IN_PROGRESS
 
     # Set the file to process in the state
     file_name = os.path.basename(unprocessed_file)
