@@ -17,6 +17,9 @@ docstring_parser==0.16
 fastapi==0.115.12
 frozenlist==1.6.0
 google-adk==0.4.0
+pdf2image==1.17.0
+Pillow==11.2.1
+PyPDF2==3.0.1
 google-api-core==2.24.2
 google-api-python-client==2.169.0
 google-auth==2.40.1
@@ -78,6 +81,7 @@ python-dotenv==1.1.0
 python-multipart==0.0.20
 PyYAML==6.0.2
 realtime==2.4.3
+reportlab==4.4.1
 requests==2.32.3
 rsa==4.9.1
 shapely==2.1.0
