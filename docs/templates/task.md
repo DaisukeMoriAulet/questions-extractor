@@ -9,7 +9,12 @@
 
 ## What to do / How
 
-1. 2. 3. ## Acceptance Criteria / AC
+- [ ] **Fetch and understand ADK documentation**
+  * [ ] Use MCP tool `Context7` to fetch and understand ADK documentation from [Agent Development Kit (ADK) Documentation](https://google.github.io/adk-docs/).
+  * [ ] Understand ADK documentation and how to use Tools and ToolContext.
+- [ ] xxx
+
+## Acceptance Criteria / AC
 
 - [ ] Unit tests are executed on CI and turn green
 - [ ] `ruff`, `black`, `isort` do not fail
