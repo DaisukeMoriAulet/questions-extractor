@@ -34,27 +34,50 @@
 * Save each page using `PdfReader` → `PdfWriter` from PyPDF2 ([Stack Overflow][7], [Medium][8]).
 * Unit tests using `adk.testing.MockArtifactService` ([Google GitHub][9]).
 
-### Phase 2: OCR Pipeline (Week 5-6)
+### Phase 2: Basic Agent Implementation (Week 5-6)
 
-* OCR with **Flash 05-20**. `extractor_agent` has no Structured Output.
-* Rate limiting to **1000 RPM** on the Runner side ([Google Developers Blog][4]).
-* 60 s timeout → `task_timeout=60` in agent config.
+- Independent implementation of individual LlmAgents with tools
+    - file_selector_agent
+      - File selection instruction
+      - tools: `select_file` / `exit_loop`
+    - extractor_agent
+      - OCR processing logic only (using Flash 05-20)
+      - tools: `load_artifact`
+    - structure_agent
+      - JSON schema structuring (Pro 05-06 + pydantic)
+      - tools: None
+    - tagging_agent
+      - Tagging logic (Pro 05-06)
+      - tools: None
+    - save_agent
+      - Saving logic only (no tool integration)
+      - tools: `save_test_set`
 
-### Phase 3: Structuring & Tagging (Week 7-8)
+- Unit test - Independent testing of each agent using the adk `adk web` command ([adk web test and evaluation][13])
+- Development UI utilization - Individual operation confirmation with adk web agents/[agent_name]
 
-* Pass **`pydantic` schema** to `structure_agent` and specify `output_schema` ([Google AI for Developers][3]).
-* Normalize variable tags into a dedicated table using JSONB.
+### Phase 3: Sequential Flow Construction (Week 7-8)
 
-### Phase 4: Supabase I/O (Week 9-10)
+- Implementation of pipeline_sequential_agent
+  - Construction of a SequentialAgent linking 5 agents
+    - file_selector_agent + select_file/exit_loop tools
+    - extractor_agent + load_artifact tool
+    - structure_agent + None
+    - tagging_agent + None
+    - save_agent + save_test_set tool (Supabase upsert)
+- Execution of integration tests for single file processing
+- Error handling - Verification of data flow between each agent
 
-* Use the `save_test_set` tool with `supabase.table("questions").upsert(..., onConflict=["part_id","number"])` ([Supabase][5], [Stack Overflow][6]).
-* Bulk upsert per `passage_set` within a transaction.
+### Phase 4: Loop and Multi-Agent Integration (Week 9-10)
+
+- Implementation of overall orchestration
+- End-to-end integration tests
 
 ### Phase 5: Reliability & Logging (Week 11-12)
 
-* Implement **Exponential Backoff + Jitter** in the common library ([PullRequest][12]).
-* Aggregate `gemini_request_id` / filenames in `context.state` for logging.
-* Loop through unprocessed files with `pipeline_loop_agent`. Follow the SequentialAgent/LoopAgent pattern ([Google GitHub][2]).
+- Implement **Exponential Backoff + Jitter** in the common library ([PullRequest][12]).
+- Aggregate `gemini_request_id` / filenames in `context.state` for logging.
+- Loop through unprocessed files with `pipeline_loop_agent`. Follow the SequentialAgent/LoopAgent pattern ([Google GitHub][2]).
 
 ### Phase 6: Performance & QA (Week 13)
 
@@ -110,3 +133,4 @@ Updating actual values during weekly reviews based on this roadmap and further b
 [10]: https://google.github.io/adk-docs/get-started/quickstart/?utm_source=chatgpt.com "Quickstart - Agent Development Kit - Google"
 [11]: https://www.reddit.com/r/github/comments/14x7p93/is_there_a_way_to_test_github_actions_yaml_code/?utm_source=chatgpt.com "Is there a way to test GitHub actions YAML code locally? - Reddit"
 [12]: https://www.pullrequest.com/blog/retrying-and-exponential-backoff-smart-strategies-for-robust-software/?utm_source=chatgpt.com "Retrying and Exponential Backoff: Smart Strategies for Robust ..."
+[13]: https://google.github.io/adk-docs/evaluate/#1-adk-web-run-evaluations-via-the-web-ui "1. ADK Web: Run evaluations via the web UI - Agent Development Kit - Google"
