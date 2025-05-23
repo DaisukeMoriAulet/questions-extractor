@@ -36,7 +36,7 @@ This document breaks down the minimum viable product (MVP) requirements defined 
 | T5  | `load_artifact(filename)`    | Return binary image                                                     | Size limit & existence check                    |
 | T6  | `save_test_set(test_set)`    | Supabase `upsert` (`onConflict=["part_id","number"]`)                  | pgBouncer limit, assert `rows_upserted`       |
 
-> **Generated file placement** … `src/tools/**.py`
+> **Generated file placement** … `questions_extractor_agent/tools/**.py`
 
 ## 4. Agent Implementation
 
@@ -63,7 +63,7 @@ This document breaks down the minimum viable product (MVP) requirements defined 
 * `temperature`: ≈ 0
 * 1000 RPM throttling (Runner)
 
-> **Generated file placement** … agent YAML + python wrapper under `src/agents/**/`
+> **Generated file placement** … agent YAML + python wrapper under `questions_extractor_agent/agents/**/`
 
 ## 5. Pipeline Execution CLI
 
