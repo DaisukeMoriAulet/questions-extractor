@@ -60,30 +60,30 @@ def split_pdf_pages(
 
         # Extract the filename without extension
         file_name_without_ext = pdf_path.stem
-        
+
         # Convert PDF pages to images using pdf2image
         images = convert_from_path(file_path)
-        
+
         # Initialize files dict in tool_context if it doesn't exist
         if "files" not in tool_context.state:
             tool_context.state["files"] = {}
-        
+
         # Save each page as a JPEG image
         for i, image in enumerate(images):
             # Create output filename with format: {original_filename_without_ext}-{page_number}.jpg
             output_filename = f"{file_name_without_ext}-{i+1}.jpg"
             output_path = pdf_path.parent / output_filename
-            
+
             # Save the image as JPEG
             image.save(str(output_path), "JPEG")
-            
+
             # Store the absolute path in the generated_files dictionary
             absolute_path = str(output_path.absolute())
             generated_files[absolute_path] = ""
-            
+
             # Store the file in the tool_context.state
             tool_context.state["files"][absolute_path] = ""
-            
+
     except Exception as e:
         return {
             "status": "error",
